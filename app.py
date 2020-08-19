@@ -30,11 +30,14 @@ C_STAR = 3
 TALLY = 4
 
 for row in sheet.iter_rows(min_row=2, max_row=673, min_col=2, max_col=7, values_only=True):
-    portfolio_symbol = Symbol(symbol=row[SYMBOL], title=None,
-      c_star=row[C_STAR], tallies=str(row[TALLY]))
-    examiner.portfolio.append(portfolio_symbol)
-    row_symbol = row[SYMBOL]
-    examiner.symbols[row_symbol] = portfolio_symbol
+    if row[SYMBOL]:
+      portfolio_symbol = Symbol(symbol=row[SYMBOL], title=None,
+        c_star=row[C_STAR], tallies=str(row[TALLY]))
+      examiner_portfolio.append(portfolio_symbol.symbol)
+      examiner.portfolio.append(portfolio_symbol)
+      row_symbol = row[SYMBOL]
+      examiner.symbols[row_symbol] = portfolio_symbol
+      examiner.symbols_list_only = examiner_portfolio
     # cpc_symbol = row[0]
     # }
     #   "symbol": row[0], #TODO: format to be readable
@@ -74,8 +77,9 @@ for row in sheet.iter_rows(min_row=2, max_row=673, min_col=2, max_col=7, values_
 
 PATENTVIEW = 'https://www.patentsview.org/api/cpc_subsections/query'
 # QUERY_SYBMOL = "B32B1/06"
+batch_query = ["B32B1/06", "A01G31/06", "A22C13/0013"]
 payload = {
-  "q": {"cpc_subgroup_id": "B32B1/06"},
+  "q": {"cpc_subgroup_id": examiner.symbols_list_only[0:200]},
   "f": ["cpc_subgroup_id", "cpc_subgroup_title"],
   "s": [{"cpc_subgroup_id": "asc"}],
   "o": {"matched_subentities_only": 'true'}
@@ -86,9 +90,17 @@ payload = {
 # print(req.json()['cpc_subsections'][0]['cpc_subgroups'][0]['cpc_subgroup_id'])
 # print(req.json()['cpc_subsections'][0]['cpc_subgroups'][0]['cpc_subgroup_title'])
 req = requests.post(PATENTVIEW, data=json.dumps(payload))
-print(req.status_code)
-print(req.json()['cpc_subsections'][0]['cpc_subgroups'][0]['cpc_subgroup_id'])
-print(req.json()['cpc_subsections'][0]['cpc_subgroups'][0]['cpc_subgroup_title'])
+if req.status_code != 200:
+    print(req.headers['x-status-reason'])
+    print(req.raise_for_status())    
+    # print(req.http_error_msg)    
+# print(req.json())
+for subsection in req.json()['cpc_subsections']:
+    for subgroup in subsection['cpc_subgroups']:
+        print(subgroup['cpc_subgroup_id'])
+        print(subgroup['cpc_subgroup_title'])
+# print(req.json()['cpc_subsections'][0]['cpc_subgroups'][0]['cpc_subgroup_id'])
+# print(req.json()['cpc_subsections'][0]['cpc_subgroups'][0]['cpc_subgroup_title'])
 
 # TODO: check status codes
 # 200 ok

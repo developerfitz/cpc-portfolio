@@ -8,6 +8,7 @@ class Examiner:
     first_name: str = None
     symbols: dict = field(default_factory=default_dict)
     portfolio: list = field(default_factory=default_list)
+    symbols_list_only: list = field(default_factory=default_list)
 
 
 @dataclass
