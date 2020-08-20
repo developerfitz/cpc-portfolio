@@ -1,8 +1,9 @@
-# from tempfile import NamedTemporaryFile
-import json
-
-from openpyxl import load_workbook
+from openpyxl import Workbook, load_workbook
+from openpyxl.utils import get_column_letter, get_column_interval
 import requests
+
+import json
+# from tempfile import NamedTemporaryFile
 from classes import Symbol, Examiner
 
 PORTFOLIO = "CPC_Portfolio_Determination-Fitzhugh_Julius.xlsx"
@@ -28,16 +29,21 @@ examiner_portfolio = []
 SYMBOL = 0
 C_STAR = 3
 TALLY = 4
+QUALIFIED = 6
+ROWS_END = 673
 
-for row in sheet.iter_rows(min_row=2, max_row=673, min_col=2, max_col=7, values_only=True):
+for row in sheet.iter_rows(min_row=2, max_row=40, min_col=2, max_col=8, values_only=True):
     if row[SYMBOL]:
-      portfolio_symbol = Symbol(symbol=row[SYMBOL], title=None,
-        c_star=row[C_STAR], tallies=str(row[TALLY]))
-      examiner_portfolio.append(portfolio_symbol.symbol)
-      examiner.portfolio.append(portfolio_symbol)
-      row_symbol = row[SYMBOL]
-      examiner.symbols[row_symbol] = portfolio_symbol
-      examiner.symbols_list_only = examiner_portfolio
+        portfolio_symbol = Symbol(symbol=row[SYMBOL],
+                                  c_star=row[C_STAR],
+                                  tally=row[TALLY],
+                                  qualified=row[QUALIFIED]
+                                 )
+        examiner_portfolio.append(portfolio_symbol.symbol)
+        examiner.portfolio.append(portfolio_symbol)
+        row_symbol = row[SYMBOL]
+        examiner.symbols[row_symbol] = portfolio_symbol
+        examiner.symbols_list_only = examiner_portfolio
     # cpc_symbol = row[0]
     # }
     #   "symbol": row[0], #TODO: format to be readable
@@ -78,8 +84,9 @@ for row in sheet.iter_rows(min_row=2, max_row=673, min_col=2, max_col=7, values_
 PATENTVIEW = 'https://www.patentsview.org/api/cpc_subsections/query'
 # QUERY_SYBMOL = "B32B1/06"
 batch_query = ["B32B1/06", "A01G31/06", "A22C13/0013"]
+# TODO: possibly turn this into a stream, so the limit does not matter
 payload = {
-  "q": {"cpc_subgroup_id": examiner.symbols_list_only[0:200]},
+  "q": {"cpc_subgroup_id": examiner.symbols_list_only[0:20]},
   "f": ["cpc_subgroup_id", "cpc_subgroup_title"],
   "s": [{"cpc_subgroup_id": "asc"}],
   "o": {"matched_subentities_only": 'true'}
@@ -97,8 +104,14 @@ if req.status_code != 200:
 # print(req.json())
 for subsection in req.json()['cpc_subsections']:
     for subgroup in subsection['cpc_subgroups']:
-        print(subgroup['cpc_subgroup_id'])
-        print(subgroup['cpc_subgroup_title'])
+        subgroup_id = subgroup['cpc_subgroup_id']
+        subgroup_title = subgroup['cpc_subgroup_title']
+        # print(examiner.symbols[subgroup_id].symbol)
+        examiner.symbols[subgroup_id].title = subgroup_title
+        # print(type(examiner.symbols[subgroup_id]['title']))
+        # print(examiner.symbols[subgroup_title]['title'])
+        # print(subgroup['cpc_subgroup_id'])
+        # print(subgroup['cpc_subgroup_title'])
 # print(req.json()['cpc_subsections'][0]['cpc_subgroups'][0]['cpc_subgroup_id'])
 # print(req.json()['cpc_subsections'][0]['cpc_subgroups'][0]['cpc_subgroup_title'])
 
@@ -106,3 +119,50 @@ for subsection in req.json()['cpc_subsections']:
 # 200 ok
 # 400 not valid query
 # 500 internal error
+
+
+# make new workbook and send to user
+new_wb = Workbook()
+ws = new_wb.create_sheet('Processed Portfolio')
+# <Symbol, title, tallies, c_start, qualified>
+column_labels = ['Symbol', 'Title', 'Tally', 'C*', 'Qualified']
+max_rows = len(examiner.symbols_list_only)
+
+cell_range = ws['A1:E1']
+max_columns = len(column_labels)
+
+# for labelcell in cell_range[0]:
+for i in range(max_columns):
+    cell_range[0][i].value = column_labels[i]
+    print(cell_range[0][i].value)
+
+LABEL = 1
+SYMBOLS_START = 2
+SYMBOLS_END = max_rows
+
+# print(examiner.portfolio)
+# for row in range(SYMBOLS_START, SYMBOLS_END):
+for row in range(2, 50):
+    for i in range(max_columns):
+        print(examiner.portfolio)
+        row_data = [examiner.portfolio[i].symbol,
+                    examiner.portfolio[i].title,
+                    examiner.portfolio[i].tally,
+                    examiner.portfolio[i].c_star,
+                    examiner.portfolio[i].qualified
+                    ]
+        ws.append(row_data)
+# for cell in cell_range:
+#     for label in column_labels:
+#         print(cell)
+#         print(label)
+
+# for column in ws.iter_cols(max_col=5, max_row=1):
+#     for label in column_labels:
+#         print(column)
+#         print(label)
+        # column = label
+
+# for row in ws.iter_rows(min_row=2, max_row={max_rows}, max_col=5):
+#     pass
+new_wb.save(f'test_{PORTFOLIO}')

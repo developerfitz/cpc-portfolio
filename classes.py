@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from utils import default_dict, default_list
+from utils import default_dict, default_list, default_none
 
 @dataclass
 class Examiner:
@@ -11,22 +11,46 @@ class Examiner:
     symbols_list_only: list = field(default_factory=default_list)
 
 
-@dataclass
+# @dataclass
+# class Symbol:
+#     '''CPC symbol object defining the properties of a CPC symbol'''
+#     symbol: str = None
+#     symbol_section: str = None
+#     symbol_class: str = None
+#     symbol_subclass: str = None
+#     symbol_group: dict = field(default_factory=default_dict)
+#     # symbol_subgroup: str = None
+#     # symbol_main_subgroup: bool
+#     c_star: str = None
+#     tallies: str = '0'
+#     title: str = field(default_factory=default_none)
+#     qualified: str = None
+
 class Symbol:
     '''CPC symbol object defining the properties of a CPC symbol'''
-    symbol: str = None
-    symbol_section: str = None
-    symbol_class: str = None
-    symbol_subclass: str = None
-    symbol_group: dict = field(default_factory=default_dict)
+    # symbol = None
+    # symbol_section = None
+    # symbol_class = None
+    # symbol_subclass = None
+    # symbol_group = {}
     # symbol_subgroup: str = None
     # symbol_main_subgroup: bool
-    c_star: str = None
-    tallies: str = '0'
-    title: str = None
+    # c_star = None
+    # tallies = 0
+    # title = None
+    # qualified = None
+
+    def __init__(self, symbol='', c_star='', tally=0, qualified='',
+                title=None, symbol_group={}):
+        self.symbol = symbol
+        self.title = title
+        self.c_star = c_star
+        self.tally = tally
+        self.qualified = qualified
+        self.symbol_group = symbol_group
 
     def __repr__(self):
-        return f"Symbol <symbol='{self.symbol}', tally='{self.tallies}, 'c_star='{self.c_star}', title='{self.title}'"
+        return f"Symbol <symbol='{self.symbol}', tally={self.tally}, c_star='{self.c_star}', title='{self.title}', qualified='{self.qualified}', symbol_group={self.symbol_group}>"
 
     def __symbol_with_space():
         ''' B32B1/06 becomes B32B 1/06 for better readability'''
