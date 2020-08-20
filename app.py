@@ -1,5 +1,6 @@
 from openpyxl import Workbook, load_workbook
 from openpyxl.utils import get_column_letter, get_column_interval
+from openpyxl.styles import Alignment, Border, Font
 import requests
 
 import json
@@ -32,7 +33,7 @@ TALLY = 4
 QUALIFIED = 6
 ROWS_END = 673
 
-for row in sheet.iter_rows(min_row=2, max_row=40, min_col=2, max_col=8, values_only=True):
+for row in sheet.iter_rows(min_row=2, max_row=ROWS_END, min_col=2, max_col=8, values_only=True):
     if row[SYMBOL]:
         portfolio_symbol = Symbol(symbol=row[SYMBOL],
                                   c_star=row[C_STAR],
@@ -44,6 +45,7 @@ for row in sheet.iter_rows(min_row=2, max_row=40, min_col=2, max_col=8, values_o
         row_symbol = row[SYMBOL]
         examiner.symbols[row_symbol] = portfolio_symbol
         examiner.symbols_list_only = examiner_portfolio
+        # print(examiner.symbols[row_symbol])
     # cpc_symbol = row[0]
     # }
     #   "symbol": row[0], #TODO: format to be readable
@@ -53,6 +55,7 @@ for row in sheet.iter_rows(min_row=2, max_row=40, min_col=2, max_col=8, values_o
     # }
     # examiner_portfolio[cpc_symbol] = portfolio_symbol
 # print(json.dumps(examiner_portfolio))
+# print(examiner.symbols_list_only)
 
 # symbols_list = []
 # for list_symbol in examiner.portfolio[0:5]:
@@ -86,11 +89,12 @@ PATENTVIEW = 'https://www.patentsview.org/api/cpc_subsections/query'
 batch_query = ["B32B1/06", "A01G31/06", "A22C13/0013"]
 # TODO: possibly turn this into a stream, so the limit does not matter
 payload = {
-  "q": {"cpc_subgroup_id": examiner.symbols_list_only[0:20]},
+  "q": {"cpc_subgroup_id": examiner.symbols_list_only[0:200]},
   "f": ["cpc_subgroup_id", "cpc_subgroup_title"],
   "s": [{"cpc_subgroup_id": "asc"}],
   "o": {"matched_subentities_only": 'true'}
 }
+# print(examiner.symbols_list_only[0:20])
 
 # req = requests.get(PATENTVIEW, params=params)
 # print(req.status_code)
@@ -108,6 +112,7 @@ for subsection in req.json()['cpc_subsections']:
         subgroup_title = subgroup['cpc_subgroup_title']
         # print(examiner.symbols[subgroup_id].symbol)
         examiner.symbols[subgroup_id].title = subgroup_title
+        # print(subgroup_id)
         # print(type(examiner.symbols[subgroup_id]['title']))
         # print(examiner.symbols[subgroup_title]['title'])
         # print(subgroup['cpc_subgroup_id'])
@@ -123,7 +128,10 @@ for subsection in req.json()['cpc_subsections']:
 
 # make new workbook and send to user
 new_wb = Workbook()
-ws = new_wb.create_sheet('Processed Portfolio')
+# ws = new_wb.create_sheet('Processed Portfolio')
+ws = new_wb.active
+ws.page_setup.fitToWidth
+ws.title = 'Processed Portfolio'
 # <Symbol, title, tallies, c_start, qualified>
 column_labels = ['Symbol', 'Title', 'Tally', 'C*', 'Qualified']
 max_rows = len(examiner.symbols_list_only)
@@ -141,17 +149,21 @@ SYMBOLS_START = 2
 SYMBOLS_END = max_rows
 
 # print(examiner.portfolio)
-# for row in range(SYMBOLS_START, SYMBOLS_END):
-for row in range(2, 50):
-    for i in range(max_columns):
-        print(examiner.portfolio)
-        row_data = [examiner.portfolio[i].symbol,
-                    examiner.portfolio[i].title,
-                    examiner.portfolio[i].tally,
-                    examiner.portfolio[i].c_star,
-                    examiner.portfolio[i].qualified
-                    ]
-        ws.append(row_data)
+# for row in range(2, 20):
+for symbol in examiner.portfolio:
+    # print(symbol)
+    # for i in range(max_columns):
+        # print(examiner.portfolio)
+    # row_data = [examiner.portfolio[i].symbol,
+                # examiner.portfolio[i].title,...
+    row_data = [symbol.symbol,
+                symbol.title,
+                symbol.tally,
+                symbol.c_star,
+                symbol.qualified
+                ]
+    # print(row_data)
+    ws.append(row_data)
 # for cell in cell_range:
 #     for label in column_labels:
 #         print(cell)
@@ -165,4 +177,34 @@ for row in range(2, 50):
 
 # for row in ws.iter_rows(min_row=2, max_row={max_rows}, max_col=5):
 #     pass
+
+symbol_cells = ws['A']
+title_cells = ws['B']
+c_star_cells = ws['C']
+tally_cells = ws['D']
+qualified_cells = ws['E']
+styles = {
+  "align": Alignment(vertical='center', wrap_text=True),
+  "align-center": Alignment(horizontal='center', vertical='center', wrap_text=True),
+  "font": Font(size=16)
+}
+
+
+for cell in symbol_cells:
+    cell.alignment = styles['align']
+    cell.font = styles['font']
+for cell in title_cells:
+    cell.alignment = styles['align']
+    cell.font = styles['font']
+for cell in c_star_cells:
+    cell.alignment = styles['align-center']
+    cell.font = styles['font']
+for cell in tally_cells:
+    cell.alignment = styles['align-center']
+    cell.font = styles['font']
+for cell in qualified_cells:
+    cell.alignment = styles['align-center']
+    cell.font = styles['font']
+
+
 new_wb.save(f'test_{PORTFOLIO}')
