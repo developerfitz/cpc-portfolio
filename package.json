@@ -1,0 +1,25 @@
+{
+  "name": "Examiners-Portfolio",
+  "version": "1.0.0",
+  "description": "CPC file generation tool",
+  "main": "index.js",
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "scripts": {
+    "clean": "rm dist/bundle.js",
+    "start": "parcel src/index.js -p 3005 -d dist-dev -o index.js",
+    "prod": "parcel build src/index.js -d public -o index.js"
+  },
+  "dependencies": {
+    "react": "^16.13.1",
+    "react-dom": "^16.13.1"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.11.1",
+    "@babel/preset-env": "^7.11.0",
+    "@babel/preset-react": "^7.10.4",
+    "cssnano": "^4.1.10",
+    "parcel-bundler": "^1.12.4"
+  }
+}

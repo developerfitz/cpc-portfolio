@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Portfolio</title>
+  <!-- TODO: hacked after building to point to /static/**.js for flask app -->
+  <link rel="stylesheet" type="text/css" href="index.css">
+	<script type="text/javascript" src='index.js'></script>
+</head>
+<body>
+  <main>
+    <h1>Examiner Portfolio Additional tools</h1>
+    <title>Upload new File</title>
+    <h1>Upload new File</h1>
+    <form action='http://localhost:5000/test' method=post enctype=multipart/form-data>
+      <input id='#upload_input' type=file name=file accept='.xls, .xlsx, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'>
+      <!-- <input type=submit value=Upload> -->
+      <button id='#upload_button'>Upload</button>
+    </form>
+  </main>
+</body>
+</html>
