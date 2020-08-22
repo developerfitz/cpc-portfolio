@@ -5,7 +5,7 @@ import requests
 import boto3
 
 import json
-# from tempfile import NamedTemporaryFile
+import os
 from classes import Symbol, Examiner
 
 
@@ -15,162 +15,164 @@ from classes import Symbol, Examiner
     cd ${OLDPWD}
     include the .py files you want to include with
     zip -g <name>.zip  <file1> <file2>...
+    aws lambda update-function-code --function-name excel-processor \ --zip-file fileb://processor.zip
 '''
 s3 = boto3.client('s3')
+BUCKET = os.environ['BUCKET']
+PRE = os.environ['PRE']
+POST = os.environ['POST']
+PORTFOLIO = "cpc-examiner-portfolio.xlsx"
+key_to_object = f'{PRE}/{PORTFOLIO}'
+key_after_processing = f'{POST}/processed-{PORTFOLIO}'
 
 
 def excel_processor(event, context):
-    buckets_list = s3.list_buckets()
-    print('Existing buckets:')
-    for bucket in buckets_list['Buckets']:
-        print(f'  {bucket["Name"]}')
-    # PORTFOLIO = "../CPC_Portfolio_Determination-Fitzhugh_Julius.xlsx"
+    # TODO: need some error handling in here
+    # download excel sheet to work on
+    s3.download_file(BUCKET, key_to_object, f'/tmp/{PORTFOLIO}')
 
-    # wb = load_workbook(filename=PORTFOLIO, read_only=True)
-    # # used for streams
-    # # with NamedTemporaryFile() as tmp:
-    # #   wb.save(tmp.name)
-    # #   tmp.seek(0)
-    # #   stream = tmp.read()
+    # ??: write file 
+    wb = load_workbook(filename=f'/tmp/{PORTFOLIO}', read_only=True)
 
-    # # TODO: take in the name of the sheet that is in the file
-    # sheet = wb["Symbols Sorted"]
-    # examiner = Examiner(first_name="", last_name='')
-    # examiner_portfolio = []
+    # TODO: take in the name of the sheet that is in the file
+    sheet = wb["Symbols Sorted"]
+    examiner = Examiner(first_name="dark", last_name='examiner')
+    portfolio_list = []
     # portfolio_data = sheet["B1:H673"]
 
-
-    # # TODO: implement a parcer that takes in the row 1 that
-    # # should be the the name of the columns
-    # # (Symbol,	Manually added,	Added by,	C* designation,	tally total,	Increase tally,	Qualified)
-    # SYMBOL = 0
-    # C_STAR = 3
-    # TALLY = 4
-    # QUALIFIED = 6
+    # first row labels of ws
+    SYMBOL = 0
+    C_STAR = 3
+    TALLY = 4
+    QUALIFIED = 6
     # ROWS_END = 673
 
-    # for row in sheet.iter_rows(
-    #     min_row=2,
-    #     max_row=40,
-    #     min_col=2,
-    #     max_col=8,
-    #     values_only=True):
-    #     if row[SYMBOL]:
-    #         portfolio_symbol = Symbol(
-    #             symbol=row[SYMBOL],
-    #             c_star=row[C_STAR],
-    #             tally=row[TALLY],
-    #             qualified=row[QUALIFIED]
-    #             )
-    #         examiner_portfolio.append(portfolio_symbol.symbol)
-    #         examiner.portfolio.append(portfolio_symbol)
+    for row in sheet.iter_rows(
+        min_row=2,
+        max_row=40,
+        min_col=2,
+        max_col=8,
+        values_only=True):
+        if row[SYMBOL]:
+            portfolio_symbol = Symbol(
+                symbol=row[SYMBOL],
+                c_star=row[C_STAR],
+                tally=row[TALLY],
+                qualified=row[QUALIFIED]
+                )
+            # adding symbol only to a list
+            portfolio_list.append(portfolio_symbol.symbol)
 
-    #         # provide a list of symbols only for easy processing
-    #         row_symbol = row[SYMBOL]
-    #         examiner.symbols[row_symbol] = portfolio_symbol
-    #         examiner.symbols_list_only = examiner_portfolio
+            # adding symbol object to examiner object as list
+            examiner.portfolio.append(portfolio_symbol)
 
+            # adding symbol object to examiner object as dict
+            row_symbol = row[SYMBOL]
+            examiner.symbols[row_symbol] = portfolio_symbol
 
-    # # https://www.patentsview.org/api/cpc_subsections/query
-    # # q={"cpc_subgroup_id":"B32B1/06"}
-    # # q={"_and":[{"examiner_last_name":"fitzhugh","examiner_first_name":"julius"}
-    # # f=["cpc_subgroup_id","cpc_subgroup_title"]
-    # # s=[{"cpc_subgroup_id":"asc"}]
-    # # o={"matched_subentities_only":true}
+    # provide a list of symbols only on examiner for easy processing
+    examiner.symbols_list_only = portfolio_list
+    # print(examiner.symbols_list_only)        
+
 
     # # TODO: possibly turn this into a stream, so the limit does not matter
-    # PATENTVIEW = 'https://www.patentsview.org/api/cpc_subsections/query'
-    # payload = {
-    #   "q": {"cpc_subgroup_id": examiner.symbols_list_only[0:20]},
-    #   "f": ["cpc_subgroup_id", "cpc_subgroup_title"],
-    #   "s": [{"cpc_subgroup_id": "asc"}],
-    #   "o": {"matched_subentities_only": 'true'}
-    # }
+    PATENTVIEW = 'https://www.patentsview.org/api/cpc_subsections/query'
+    payload = {
+      "q": {"cpc_subgroup_id": examiner.symbols_list_only[0:20]},
+      "f": ["cpc_subgroup_id", "cpc_subgroup_title"],
+      "s": [{"cpc_subgroup_id": "asc"}],
+      "o": {"matched_subentities_only": 'true'}
+    }
 
-    # req = requests.post(PATENTVIEW, data=json.dumps(payload))
-    # if req.status_code != 200:
-    #     print(req.headers['x-status-reason'])
-    #     print(req.raise_for_status())    
+    req = requests.post(PATENTVIEW, data=json.dumps(payload))
+    if req.status_code != 200:
+        print(req.headers['x-status-reason'])
+        print(req.raise_for_status())
+        # return(req.raise_for_status())   
 
-    # for subsection in req.json()['cpc_subsections']:
-    #     for subgroup in subsection['cpc_subgroups']:
-    #         subgroup_id = subgroup['cpc_subgroup_id']
-    #         subgroup_title = subgroup['cpc_subgroup_title']
-    #         examiner.symbols[subgroup_id].title = subgroup_title
-
-
-    # # make new workbook and send to user
-    # new_wb = Workbook()
-    # # ws = new_wb.create_sheet('Processed Portfolio')
-    # ws = new_wb.active
-    # ws.page_setup.fitToWidth
-    # ws.title = 'Processed Portfolio'
-    # column_labels = ['Symbol', 'Title', 'Tally', 'C*', 'Qualified']
-    # ws.append(column_labels)
-    # # max_columns = len(column_labels)
-    # # cell_range = ws['A1:E1']
-    # # for i in range(max_columns):
-    # #     cell_range[0][i].value = column_labels[i]
-    # #     print(cell_range[0][i].value)
+    for subsection in req.json()['cpc_subsections']:
+        for subgroup in subsection['cpc_subgroups']:
+            subgroup_id = subgroup['cpc_subgroup_id']
+            subgroup_title = subgroup['cpc_subgroup_title']
+            examiner.symbols[subgroup_id].title = subgroup_title
 
 
-    # for symbol in examiner.portfolio:
-    #     row_data = [symbol.symbol,
-    #                 symbol.title,
-    #                 symbol.tally,
-    #                 symbol.c_star,
-    #                 symbol.qualified
-    #                 ]
-    #     ws.append(row_data)
+    # make new workbook and send to user
+    new_wb = Workbook()
+    ws = new_wb.active
+    ws.title = 'Processed Portfolio'
+    column_labels = ['Symbol', 'Title', 'Tally', 'C*', 'Qualified']
+    ws.append(column_labels)
 
+    for symbol in examiner.portfolio:
+        row_data = [symbol.symbol,
+                    symbol.title,
+                    symbol.tally,
+                    symbol.c_star,
+                    symbol.qualified
+                    ]
+        ws.append(row_data)
 
-    # symbol_cells = ws['A']
-    # title_cells = ws['B']
-    # c_star_cells = ws['C']
-    # tally_cells = ws['D']
-    # qualified_cells = ws['E']
-    # styles = {
-    #   "align": Alignment(vertical='center', wrap_text=True),
-    #   "align-center": Alignment(horizontal='center', vertical='center', wrap_text=True),
-    #   "font": Font(size=16)
-    # }
+    symbol_cells = ws['A']
+    title_cells = ws['B']
+    c_star_cells = ws['C']
+    tally_cells = ws['D']
+    qualified_cells = ws['E']
+    styles = {
+      "align": Alignment(vertical='center', wrap_text=True),
+      "align-center": Alignment(horizontal='center', vertical='center', wrap_text=True),
+      "font": Font(size=16)
+    }
 
-    # for cell in symbol_cells:
-    #     cell.alignment = styles['align']
-    #     cell.font = styles['font']
-    # for cell in title_cells:
-    #     cell.alignment = styles['align']
-    #     cell.font = styles['font']
-    # for cell in c_star_cells:
-    #     cell.alignment = styles['align-center']
-    #     cell.font = styles['font']
-    # for cell in tally_cells:
-    #     cell.alignment = styles['align-center']
-    #     cell.font = styles['font']
-    # for cell in qualified_cells:
-    #     cell.alignment = styles['align-center']
-    #     cell.font = styles['font']
+    for cell in symbol_cells:
+        cell.alignment = styles['align']
+        cell.font = styles['font']
+    for cell in title_cells:
+        cell.alignment = styles['align']
+        cell.font = styles['font']
+    for cell in c_star_cells:
+        cell.alignment = styles['align-center']
+        cell.font = styles['font']
+    for cell in tally_cells:
+        cell.alignment = styles['align-center']
+        cell.font = styles['font']
+    for cell in qualified_cells:
+        cell.alignment = styles['align-center']
+        cell.font = styles['font']
 
+    # save and upload processed excel wb
+    new_wb.save(f'/tmp/processed{PORTFOLIO}')
+    s3.upload_file(
+        f'/tmp/processed{PORTFOLIO}',
+        BUCKET,
+        key_after_processing
+        )
 
-    # new_wb.save(f'excel_processed.xlsx')
+    s3_params = {
+        'Bucket': BUCKET,
+        'Key': key_after_processing,
+    }
+
+    url = s3.generate_presigned_url(
+        'get_object',
+        Params=s3_params,
+        HttpMethod='GET',
+        ExpiresIn=60
+    )
 
     payload = {
-        'message': 'Uploaded function working lambda working',
-        'buckets': buckets_list,
-        'presigned-url': 'some url'
+        'message': 'Hope this helps you organize your portfolio',
+        'bucket': BUCKET,
+        'filename': key_after_processing,
+        # 'symbols': examiner.symbols_list_only,
+        'presigned-url': url,
     }
     print(payload)
-
 
     return {
         'statusCode': 200,
         'headers': {
             'Content-Type': 'application/json'
         },
-        'body': 'payload'
+        'body': json.dumps(payload)
     }
-
-
-
-# # if __name__ = '__main__':
-# #     excel_processor()
