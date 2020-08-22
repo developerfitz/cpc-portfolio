@@ -9,6 +9,7 @@ function load(){
 
     uploadButton.addEventListener('click', (e) => {
       const uploadInput = document.getElementById('#upload_input')
+      responseDiv.innerText = 'Loading...'
 
 
       for (let file of uploadInput.files) {
@@ -18,7 +19,7 @@ function load(){
           // const url = 'https://7tmyw05dri.execute-api.us-east-1.amazonaws.com/dev/examiner-portfolio'
           const url = 'https://7tmyw05dri.execute-api.us-east-1.amazonaws.com/dev/examiner-portfolio'
           const options = {
-            method: 'POST',
+            method: 'PUT',
             mode: 'cors',
             headers: {
               'Accept': file.type,
@@ -36,7 +37,7 @@ function load(){
           // console.log(reqPromise)
           fetch(req)
             .then(res => {
-              fulfilled = res.json()
+              const fulfilled = res.json()
               console.log(res)
               // console.log(res.blob)
               // console.log(res.json())
@@ -46,8 +47,31 @@ function load(){
               return fulfilled 
             })
             .then(data => {
-              responseDiv.innerText = data
+              responseDiv.innerText = data.message
               console.log(data)
+              const putOptions = {
+                method: 'PUT',
+                mode: 'cors',
+                headers: {
+                  'Accept': file.type,
+                  'Content-Type': file.type,
+                  'X-filename': file.name,
+                  'X-size': file.size,
+                  // 'Access-Control-Allow-Origin': 'http://localhost:8888',
+                  // 'Access-Control-Allow-Origin': 'https://7tmyw05dri.execute-api.us-east-1.amazonaws.com/dev/examiner-portfolio'
+                },
+                body: file,
+              }
+              const putReq = new Request(data.presignedUrl, putOptions)
+              fetch(putReq)
+                .then(res => {
+                  // const putFulfilled = res.json()
+                  console.log(res)
+                  // console.log(putFulfilled)
+                })
+                .then (data => {
+                  console.log(data)
+                })
               // console.log(data.json())
             })
         }  
