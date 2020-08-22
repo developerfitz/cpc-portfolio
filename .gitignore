@@ -4,3 +4,10 @@ CPC_Portfolio_Determination-Fitzhugh_Julius.xlsx
 .vscode/
 __pycache__/
 test_CPC*
+
+**/node_modules/**
+lambda-zappa/
+.DS_Store
+# virtual env
+excel-proc/
+.netlify/
