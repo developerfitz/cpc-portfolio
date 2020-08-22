@@ -9,14 +9,6 @@ import os
 from classes import Symbol, Examiner
 
 
-''' upload zip files to lambda
-    go to the site-packages folder in the venv-folder
-    run zip -r9 ${OLDPWD}/<name>.zip .
-    cd ${OLDPWD}
-    include the .py files you want to include with
-    zip -g <name>.zip  <file1> <file2>...
-    aws lambda update-function-code --function-name excel-processor \ --zip-file fileb://processor.zip
-'''
 s3 = boto3.client('s3')
 BUCKET = os.environ['BUCKET']
 PRE = os.environ['PRE']

@@ -1,2 +1,5 @@
 openpyxl
 requests
+flask
+flask-cors
+werkzerg

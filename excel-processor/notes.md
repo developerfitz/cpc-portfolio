@@ -29,3 +29,11 @@
 # for i in range(max_columns):
 #     cell_range[0][i].value = column_labels[i]
 #     print(cell_range[0][i].value)
+
+# upload zip files to lambda
+go to the site-packages folder in the venv-folder
+run `zip -r9 ${OLDPWD}/<name>.zip .`
+`cd ${OLDPWD}`
+include the .py files you want to include with
+`zip -g <name>.zip  <file1> <file2>`
+`aws lambda update-function-code --function-name excel-processor \ --zip-file fileb://processor.zip`

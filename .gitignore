@@ -1,3 +1,23 @@
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# from createapp.dev/parcel
+.cache/
+coverage/
+dist/*
+!dist/index.html
+node_modules/
+*.log
+
+# Local Netlify folder
+.netlify
+
 # enviornment folder
 uspto/
 CPC_Portfolio_Determination-Fitzhugh_Julius.xlsx
@@ -6,11 +26,12 @@ cpc-examiner-portfolio.xlsx
 __pycache__/
 test_CPC*
 
-**/node_modules/**
+# lambda backend
 lambda-zappa/
-.DS_Store
 processor.zip
-
-# virtual env
 excel-proc/
+
+# frontend
 .netlify/
+
+
