@@ -1,7 +1,8 @@
-console.log("Hello Examiners!")
+console.log("Hello Examiners let's get this started!")
 
 function load(){
   const uploadButton = document.getElementById('#upload_button')
+  const responseDiv = document.getElementById('#response')
 
   if (uploadButton) {
     const data = {name: 'good data'}
@@ -15,22 +16,40 @@ function load(){
         console.log(file)
         const getTest = async () => {
           // const url = 'https://7tmyw05dri.execute-api.us-east-1.amazonaws.com/dev/examiner-portfolio'
-          const url = 'http://localhost:5000/test'
+          const url = 'https://7tmyw05dri.execute-api.us-east-1.amazonaws.com/dev/examiner-portfolio'
           const options = {
             method: 'POST',
             mode: 'cors',
             headers: {
               'Accept': file.type,
               'Content-Type': file.type,
-              'Access-Control-Allow-Origin': 'http://localhost:8888'
+              'X-filename': file.name,
+              'X-size': file.size,
+              // 'Access-Control-Allow-Origin': 'http://localhost:8888',
+              // 'Access-Control-Allow-Origin': 'https://7tmyw05dri.execute-api.us-east-1.amazonaws.com/dev/examiner-portfolio'
             },
             body: file,
           }
 
           const req = new Request(url, options)
-          await fetch(req)
-            .then(res => console.log(res))
-            .then(data => console.log(data))
+          // const reqPromise = fetch(req)
+          // console.log(reqPromise)
+          fetch(req)
+            .then(res => {
+              fulfilled = res.json()
+              console.log(res)
+              // console.log(res.blob)
+              // console.log(res.json())
+              console.log(fulfilled)
+              // console.log(res.json().status)
+              // console.log(res.json().value)
+              return fulfilled 
+            })
+            .then(data => {
+              responseDiv.innerText = data
+              console.log(data)
+              // console.log(data.json())
+            })
         }  
         getTest()
 
