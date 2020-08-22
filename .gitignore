@@ -1,6 +1,7 @@
 # enviornment folder
 uspto/
 CPC_Portfolio_Determination-Fitzhugh_Julius.xlsx
+cpc-examiner-portfolio.xlsx
 .vscode/
 __pycache__/
 test_CPC*
@@ -8,6 +9,8 @@ test_CPC*
 **/node_modules/**
 lambda-zappa/
 .DS_Store
+processor.zip
+
 # virtual env
 excel-proc/
 .netlify/
