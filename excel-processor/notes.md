@@ -37,3 +37,18 @@ run `zip -r9 ${OLDPWD}/<name>.zip .`
 include the .py files you want to include with
 `zip -g <name>.zip  <file1> <file2>`
 `aws lambda update-function-code --function-name excel-processor \ --zip-file fileb://processor.zip`
+
+
+# s3.create_bucket(Bucket='cpc-portfolios', region='us-east-1')
+# s3.list_buckets()
+
+# response = s3.list_buckets()
+
+# # Output the bucket names
+# print('Existing buckets:')
+# for bucket in response['Buckets']:
+#     print(f'  {bucket["Name"]}')
+
+# s3.put_object(Bucket=BUCKET, Key=filename, Body=file)
+# with open('filename', 'rb') as data:
+#     s3.upload_fileobj(data, 'mybucket', 'mykey')

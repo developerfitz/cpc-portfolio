@@ -13,18 +13,29 @@ s3 = boto3.client('s3')
 BUCKET = os.environ['BUCKET']
 PRE = os.environ['PRE']
 POST = os.environ['POST']
-PORTFOLIO = "cpc-examiner-portfolio.xlsx"
-key_to_object = f'{PRE}/{PORTFOLIO}'
-key_after_processing = f'{POST}/processed-{PORTFOLIO}'
+# PORTFOLIO = "cpc-examiner-portfolio.xlsx"
+# key_to_object = f'{PRE}/{PORTFOLIO}'
+# key_after_processing = f'{POST}/processed-{PORTFOLIO}'
 
 
 def excel_processor(event, context):
     # TODO: need some error handling in here
     # download excel sheet to work on
-    s3.download_file(BUCKET, key_to_object, f'/tmp/{PORTFOLIO}')
-
+    # TODO: something is up with the event or event['body']
+    # ??: event['body'] not dict is str?
+    # ??: event['body'] == [object Object] so its the way it's sent??
+    print(event)
+    body = json.loads(event['body'])
+    # body = event['body']
+    print(body)
+    filename = body['filename']
+    print(filename)
+    # filename = 'cpc-examiner-portfolio.xlsx'
+    key_to_object = f'{PRE}/{filename}'
+    s3.download_file(BUCKET, key_to_object, f'/tmp/{filename}')
+    # ??: need a new role to log files in cloudwatch?
     # ??: write file 
-    wb = load_workbook(filename=f'/tmp/{PORTFOLIO}', read_only=True)
+    wb = load_workbook(filename=f'/tmp/{filename}', read_only=True)
 
     # TODO: take in the name of the sheet that is in the file
     sheet = wb["Symbols Sorted"]
@@ -133,9 +144,14 @@ def excel_processor(event, context):
         cell.font = styles['font']
 
     # save and upload processed excel wb
-    new_wb.save(f'/tmp/processed{PORTFOLIO}')
+    processed_filename = f'processed-{filename}'
+    key_after_processing = f'{POST}/{processed_filename}'
+    tmp_file_location = f'/tmp/{processed_filename}'
+
+    new_wb.save(tmp_file_location)
+
     s3.upload_file(
-        f'/tmp/processed{PORTFOLIO}',
+        tmp_file_location,
         BUCKET,
         key_after_processing
         )
@@ -157,14 +173,14 @@ def excel_processor(event, context):
         'bucket': BUCKET,
         'filename': key_after_processing,
         # 'symbols': examiner.symbols_list_only,
-        'presigned-url': url,
+        'presignedUrl': url,
     }
     print(payload)
 
     return {
-        'statusCode': 200,
         'headers': {
-            'Content-Type': 'application/json'
+            'Access-Control-Allow-Origin': 'http://localhost:8888',
         },
-        'body': json.dumps(payload)
+        'statusCode': 200,
+        'body': json.dumps(payload),
     }
