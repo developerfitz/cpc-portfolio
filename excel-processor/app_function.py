@@ -48,11 +48,11 @@ def excel_processor(event, context):
     C_STAR = 3
     TALLY = 4
     QUALIFIED = 6
-    # ROWS_END = 673
+    ROWS_END = 673
 
     for row in sheet.iter_rows(
         min_row=2,
-        max_row=40,
+        max_row=ROWS_END,
         min_col=2,
         max_col=8,
         values_only=True):
@@ -81,7 +81,7 @@ def excel_processor(event, context):
     # # TODO: possibly turn this into a stream, so the limit does not matter
     PATENTVIEW = 'https://www.patentsview.org/api/cpc_subsections/query'
     payload = {
-      "q": {"cpc_subgroup_id": examiner.symbols_list_only[0:20]},
+      "q": {"cpc_subgroup_id": examiner.symbols_list_only[0:200]},
       "f": ["cpc_subgroup_id", "cpc_subgroup_title"],
       "s": [{"cpc_subgroup_id": "asc"}],
       "o": {"matched_subentities_only": 'true'}
@@ -171,7 +171,7 @@ def excel_processor(event, context):
     payload = {
         'message': 'Hope this helps you organize your portfolio',
         'bucket': BUCKET,
-        'filename': key_after_processing,
+        'filename': filename,
         # 'symbols': examiner.symbols_list_only,
         'presignedUrl': url,
     }

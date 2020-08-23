@@ -43,18 +43,18 @@ function load(){
           const req = new Request(uploadUrl, options)
           // const reqPromise = fetch(req)
           // console.log(reqPromise)
-          fetch(req)
-            .then(res => {
-              const fulfilled = res.json()
-              console.log(res)
+          const getPresignedUploadUrl = await fetch(req)
+            .then(resolve => {
+              const fulfilled = resolve.json()
+              console.log(resolve)
+              console.log(fulfilled)
               // console.log(res.blob)
               // console.log(res.json())
-              console.log(fulfilled)
               // console.log(res.json().status)
               // console.log(res.json().value)
               return fulfilled 
-            })
-            .then(data => {
+            }, rejected => new Error('Upload url not recieved'))
+            .then(async (data) => {
               responseDiv.innerText = data.message
               console.log(data)
 
@@ -72,13 +72,13 @@ function load(){
                 body: file,
               }
               const putReq = new Request(data.presignedUrl, putOptions)
-              fetch(putReq)
-                .then(res => {
+              const getPresignedDownloadUrl = await fetch(putReq)
+                .then(resolve => {
                   // const putFulfilled = res.json()
-                  console.log(res)
+                  console.log(resolve)
                   // console.log(putFulfilled)
                   // return res.json()
-                })
+                }, rejected => new Error('Download Url not recieved'))
                 // .then(data => {
                 //   console.log(data)
                 //   // usingthis data should be able
@@ -104,16 +104,20 @@ function load(){
                 downloadUrl, 
                 downloadFileOptions)
               // console.log(downloadFileOptions.body)
-              fetch(getExcelFile)
-                .then( res => {
+              const startProcessingFile = await fetch(getExcelFile)
+                .then( resolve => {
                   // response = res.json()
                   // console.log(res)
                   // console.log(response)
-                  return res.json()
+                  return resolve.json()
                 })
                 .then( data => {
                   console.log(data)
-                  responseDiv.innerText = `Your file ${data.filename} has been downloaded. Thank you for waiting. ${data.message}.`
+                  responseDiv.innerText = `
+                    Your file ${data.filename} has been downloaded. 
+                    Thank you for waiting. 
+                    ${data.message}.
+                    `
                   // getProcessedFileUrl = data.presignedUrl
                   window.open(data.presignedUrl, '_blank')
                   // fetch(data.presignedUrl,
@@ -123,6 +127,10 @@ function load(){
                   // )
                   //   .then( res => console.log(res) ) 
                   //   .then( data => console.log(data) )
+                })
+                .catch( error => {
+                  console.warn(error)
+                  return new Error('File note processed')
                 })
 
             })
