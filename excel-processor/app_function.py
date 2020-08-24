@@ -13,9 +13,6 @@ s3 = boto3.client('s3')
 BUCKET = os.environ['BUCKET']
 PRE = os.environ['PRE']
 POST = os.environ['POST']
-# PORTFOLIO = "cpc-examiner-portfolio.xlsx"
-# key_to_object = f'{PRE}/{PORTFOLIO}'
-# key_after_processing = f'{POST}/processed-{PORTFOLIO}'
 
 
 def excel_processor(event, context):
@@ -24,13 +21,8 @@ def excel_processor(event, context):
     # TODO: something is up with the event or event['body']
     # ??: event['body'] not dict is str?
     # ??: event['body'] == [object Object] so its the way it's sent??
-    print(event)
     body = json.loads(event['body'])
-    # body = event['body']
-    print(body)
     filename = body['filename']
-    print(filename)
-    # filename = 'cpc-examiner-portfolio.xlsx'
     key_to_object = f'{PRE}/{filename}'
     s3.download_file(BUCKET, key_to_object, f'/tmp/{filename}')
     # ??: need a new role to log files in cloudwatch?
@@ -74,8 +66,7 @@ def excel_processor(event, context):
             examiner.symbols[row_symbol] = portfolio_symbol
 
     # provide a list of symbols only on examiner for easy processing
-    examiner.symbols_list_only = portfolio_list
-    # print(examiner.symbols_list_only)        
+    examiner.symbols_list_only = portfolio_list       
 
 
     # # TODO: possibly turn this into a stream, so the limit does not matter
@@ -172,7 +163,6 @@ def excel_processor(event, context):
         'message': 'Hope this helps you organize your portfolio',
         'bucket': BUCKET,
         'filename': filename,
-        # 'symbols': examiner.symbols_list_only,
         'presignedUrl': url,
     }
     print(payload)
@@ -184,3 +174,29 @@ def excel_processor(event, context):
         'statusCode': 200,
         'body': json.dumps(payload),
     }
+
+
+# def main():
+    # handle incoming request
+    # get necessary items from request
+
+    # def parse_examiner_Workbook(wb, sheet):
+        # def extract_examiner_data():
+            # makes examiner object to store data from workbook
+            # return examiner object
+        # def get_CPC_titles(examiner_object):
+            # API call to patentview for titles
+            # return dict {subgroup_id: subgroup_title}
+        
+    # append the titles to the examiner object
+    # create new workbook and added examiner data (symbols + title)
+        
+    # def style_workbook():
+        # return styled worksheet
+    # save workbook to tmp and prepare to upload to S3
+
+    # def generate_presignedUrl(bucket, key):
+        #return url
+    
+    # prepare payload
+    # return payload in a response

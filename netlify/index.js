@@ -1,4 +1,4 @@
-console.log("Hello Examiners let's get this started!")
+console.log("Hello Examiners")
 
 function load(){
   const uploadButton = document.getElementById('#upload_button')
@@ -21,9 +21,9 @@ function load(){
         console.log(file.name, file.type, file.size)
         console.log(file)
         const getTest = async () => {
-          // const url = 'https://7tmyw05dri.execute-api.us-east-1.amazonaws.com/dev/examiner-portfolio'
           const uploadUrl = 'https://7tmyw05dri.execute-api.us-east-1.amazonaws.com/dev/examiner-portfolio'
           const downloadUrl = 'https://7tmyw05dri.execute-api.us-east-1.amazonaws.com/dev/get-processed-excel-sheet'
+
           // This should probably just be a get for the presigned url
           // not a put or uploading of the file
           const options = {
@@ -34,24 +34,16 @@ function load(){
               'Content-Type': file.type,
               'X-filename': file.name,
               'X-size': file.size,
-              // 'Access-Control-Allow-Origin': 'http://localhost:8888',
-              // 'Access-Control-Allow-Origin': 'https://7tmyw05dri.execute-api.us-east-1.amazonaws.com/dev/examiner-portfolio'
             },
             body: file,
           }
           // PUT request for 🤷🏽‍♂️ but I get a presigned url
           const req = new Request(uploadUrl, options)
-          // const reqPromise = fetch(req)
-          // console.log(reqPromise)
           const getPresignedUploadUrl = await fetch(req)
             .then(resolve => {
               const fulfilled = resolve.json()
               console.log(resolve)
               console.log(fulfilled)
-              // console.log(res.blob)
-              // console.log(res.json())
-              // console.log(res.json().status)
-              // console.log(res.json().value)
               return fulfilled 
             }, rejected => new Error('Upload url not recieved'))
             .then(async (data) => {
@@ -74,26 +66,14 @@ function load(){
               const putReq = new Request(data.presignedUrl, putOptions)
               const getPresignedDownloadUrl = await fetch(putReq)
                 .then(resolve => {
-                  // const putFulfilled = res.json()
                   console.log(resolve)
-                  // console.log(putFulfilled)
-                  // return res.json()
                 }, rejected => new Error('Download Url not recieved'))
-                // .then(data => {
-                //   console.log(data)
-                //   // usingthis data should be able
-                // })
-              // console.log(data.json())
 
               // Start the file to be processed and downloaded
               // TODO: ensure the file is uploaded before sending this request
               const downloadFileOptions = {
                 method: 'PUT',
                 mode: 'cors',
-                // headers: {
-                //   'Accept': file.type,
-                //   'Content-Type': file.type,
-                // },
                 body: JSON.stringify({
                   filename: file.name,
                   contentType: file.type,
@@ -103,12 +83,8 @@ function load(){
               const getExcelFile = new Request(
                 downloadUrl, 
                 downloadFileOptions)
-              // console.log(downloadFileOptions.body)
               const startProcessingFile = await fetch(getExcelFile)
                 .then( resolve => {
-                  // response = res.json()
-                  // console.log(res)
-                  // console.log(response)
                   return resolve.json()
                 })
                 .then( data => {
@@ -118,19 +94,11 @@ function load(){
                     Thank you for waiting. 
                     ${data.message}.
                     `
-                  // getProcessedFileUrl = data.presignedUrl
                   window.open(data.presignedUrl, '_blank')
-                  // fetch(data.presignedUrl,
-                  //   { method: 'GET',
-                  //     mode: 'cors',     
-                  //   }
-                  // )
-                  //   .then( res => console.log(res) ) 
-                  //   .then( data => console.log(data) )
                 })
                 .catch( error => {
                   console.warn(error)
-                  return new Error('File note processed')
+                  return new Error('File not processed.')
                 })
 
             })
