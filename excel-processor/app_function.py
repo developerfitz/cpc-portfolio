@@ -3,8 +3,11 @@ from openpyxl.utils import get_column_letter, get_column_interval
 from openpyxl.styles import Alignment, Border, Font
 import requests
 import boto3
+from aws_xray_sdk.core import xray_recorder
+from aws_xray_sdk.core import patch_all
 
 import json
+import logging
 import os
 from classes import Symbol, Examiner
 
@@ -17,6 +20,9 @@ from classes import Symbol, Examiner
     zip -g <name>.zip  <file1> <file2>...
     aws lambda update-function-code --function-name excel-processor \ --zip-file fileb://processor.zip
 '''
+logger = logging.getLogger()
+logger.setLevel(logging.INFO)
+patch_all()
 s3 = boto3.client('s3')
 BUCKET = os.environ['BUCKET']
 PRE = os.environ['PRE']
@@ -29,6 +35,13 @@ key_after_processing = f'{POST}/processed-{PORTFOLIO}'
 def excel_processor(event, context):
     # TODO: need some error handling in here
     # download excel sheet to work on
+    logger.info(BUCKET)
+    # TODO: should add the filename from the event object
+    logger.info(PORTFOLIO) 
+    filename = event['body']['filename']
+    logger.info(filename
+    
+    )
     s3.download_file(BUCKET, key_to_object, f'/tmp/{PORTFOLIO}')
 
     # ??: write file 
@@ -72,7 +85,7 @@ def excel_processor(event, context):
 
     # provide a list of symbols only on examiner for easy processing
     examiner.symbols_list_only = portfolio_list
-    # print(examiner.symbols_list_only)        
+    logger.info(examiner.symbols_list_only[5])
 
 
     # # TODO: possibly turn this into a stream, so the limit does not matter
@@ -86,8 +99,8 @@ def excel_processor(event, context):
 
     req = requests.post(PATENTVIEW, data=json.dumps(payload))
     if req.status_code != 200:
-        print(req.headers['x-status-reason'])
-        print(req.raise_for_status())
+        logger.info(req.headers['x-status-reason'])
+        logger.info(req.raise_for_status())
         # return(req.raise_for_status())   
 
     for subsection in req.json()['cpc_subsections']:
@@ -123,6 +136,7 @@ def excel_processor(event, context):
       "align-center": Alignment(horizontal='center', vertical='center', wrap_text=True),
       "font": Font(size=16)
     }
+    # TODO: add column_dimensions to adjust the width of a column
 
     for cell in symbol_cells:
         cell.alignment = styles['align']
