@@ -10,6 +10,8 @@ test_CPC*
 lambda-zappa/
 .DS_Store
 processor.zip
+upload-portfolio.zip
+.env
 
 # virtual env
 excel-proc/
