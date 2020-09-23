@@ -12,17 +12,10 @@ import os
 from classes import Symbol, Examiner
 
 
-''' upload zip files to lambda
-    go to the site-packages folder in the venv-folder
-    run zip -r9 ${OLDPWD}/<name>.zip .
-    cd ${OLDPWD}
-    include the .py files you want to include with
-    zip -g <name>.zip  <file1> <file2>...
-    aws lambda update-function-code --function-name excel-processor \ --zip-file fileb://processor.zip
-'''
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 patch_all()
+
 s3 = boto3.client('s3')
 BUCKET = os.environ['BUCKET']
 PRE = os.environ['PRE']
@@ -34,11 +27,13 @@ def excel_processor(event, context):
     # download excel sheet to work on
     logger.info(BUCKET)
     # TODO: should add the filename from the event object
-    logger.info(PORTFOLIO) 
-    filename = event['body']['filename']
+    # logger.info(event)
+    body = json.loads(event['body'])
+    # logger.info(body)
+    filename = body['filename']
     logger.info(filename)
     
-    s3.download_file(BUCKET, key_to_object, f'/tmp/{PORTFOLIO}')
+    s3.download_file(BUCKET, f'{PRE}/{filename}', f'/tmp/{filename}')
 
     # ??: write file 
     wb = load_workbook(filename=f'/tmp/{filename}', read_only=True)
@@ -81,18 +76,18 @@ def excel_processor(event, context):
 
     # provide a list of symbols only on examiner for easy processing
     examiner.symbols_list_only = portfolio_list
-    logger.info(examiner.symbols_list_only[5])
+    logger.info(examiner.symbols_list_only[0:5])
 
 
     # # TODO: possibly turn this into a stream, so the limit does not matter
-    PATENTVIEW = 'https://www.patentsview.org/api/cpc_subsections/query'
+    PATENTVIEW = 'https://api.patentsview.org/cpc_subsections/query'
     payload = {
-      "q": {"cpc_subgroup_id": examiner.symbols_list_only[0:200]},
+      "q": {"cpc_subgroup_id": examiner.symbols_list_only[0:5]},
       "f": ["cpc_subgroup_id", "cpc_subgroup_title"],
       "s": [{"cpc_subgroup_id": "asc"}],
       "o": {"matched_subentities_only": 'true'}
     }
-
+    logger.info(payload)
     req = requests.post(PATENTVIEW, data=json.dumps(payload))
     if req.status_code != 200:
         logger.info(req.headers['x-status-reason'])
@@ -133,7 +128,11 @@ def excel_processor(event, context):
       "font": Font(size=16)
     }
     # TODO: add column_dimensions to adjust the width of a column
-
+    ws.column_dimensions['A'].width = 22
+    ws.column_dimensions['B'].width = 150
+    ws.column_dimensions['C'].width = 8
+    ws.column_dimensions['D'].width = 8
+    ws.column_dimensions['E'].width = 12
     for cell in symbol_cells:
         cell.alignment = styles['align']
         cell.font = styles['font']
@@ -154,7 +153,7 @@ def excel_processor(event, context):
     processed_filename = f'processed-{filename}'
     key_after_processing = f'{POST}/{processed_filename}'
     tmp_file_location = f'/tmp/{processed_filename}'
-
+    logger.info(processed_filename)
     new_wb.save(tmp_file_location)
 
     s3.upload_file(
@@ -168,6 +167,7 @@ def excel_processor(event, context):
         'Key': key_after_processing,
     }
 
+    logger.info(s3_params)
     url = s3.generate_presigned_url(
         'get_object',
         Params=s3_params,
@@ -181,7 +181,7 @@ def excel_processor(event, context):
         'filename': filename,
         'presignedUrl': url,
     }
-    print(payload)
+    logger.info(payload)
 
     return {
         'headers': {

@@ -12,7 +12,7 @@ function load(){
         console.log(e)
         const requestParams = {
           method: 'POST',
-          mode: 'cors'
+          mode: 'cors',
           body: file,
           contentType: file.type
         }
