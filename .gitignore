@@ -29,6 +29,10 @@ test_CPC*
 # lambda backend
 lambda-zappa/
 processor.zip
+upload-portfolio.zip
+.env
+
+# virtual env
 excel-proc/
 
 # frontend
