@@ -1,1 +1,10 @@
-{}
+{
+	"auth": {
+		"examinersoautha56dc3f1": {
+			"service": "Cognito",
+			"providerPlugin": "awscloudformation",
+			"dependsOn": [],
+			"customAuth": false
+		}
+	}
+}

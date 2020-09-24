@@ -1,0 +1,1 @@
+{"version":3,"sources":["styles.css","styles.styl"],"names":[],"mappings":"AAAA;AACA;AACA;AACA;ACHA;AACA;AACA;AACA;AACA","file":"src.e31bb0bc.css","sourceRoot":"../src","sourcesContent":["h1 {\n  color: white;\n  background-color: black;\n}","h1 {\n  color: #fff;\n  background-color: #000;\n}\n"]}

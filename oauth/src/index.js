@@ -5,5 +5,10 @@ import "./styles.css";
 import "./styles.styl";
 
 
-var mountNode = document.getElementById("app");
+import Amplify from 'aws-amplify'
+import config from './aws-exports'
+
+Amplify.configure(config)
+
+const mountNode = document.getElementById("app");
 ReactDOM.render(<App name="Jane" />, mountNode);
