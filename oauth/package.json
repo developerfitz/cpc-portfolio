@@ -8,12 +8,13 @@
   "license": "ISC",
   "scripts": {
     "clean": "rm dist/bundle.js",
-    "start": "parcel src/index.html -p 3005 -d build-test",
+    "start": "parcel src/index.html -p 3005 -d build",
     "prod": "parcel build src/index.html",
     "build": "parcel build src/index.html -d build-dev",
     "dev": "parcel serve src/index.html --host -p 3005"
   },
   "dependencies": {
+    "@aws-amplify/ui-react": "^0.2.21",
     "aws-amplify": "^3.3.1",
     "aws-amplify-react": "^4.2.5",
     "react": "^16.13.1",

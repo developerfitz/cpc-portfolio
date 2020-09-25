@@ -1,10 +1,26 @@
 {
+	"function": {
+		"examinerportfolio5321e3b5PostConfirmation": {
+			"build": true,
+			"providerPlugin": "awscloudformation",
+			"service": "Lambda"
+		}
+	},
 	"auth": {
-		"examinersoautha56dc3f1": {
+		"examinerportfolio5321e3b5": {
 			"service": "Cognito",
 			"providerPlugin": "awscloudformation",
-			"dependsOn": [],
-			"customAuth": false
+			"dependsOn": [
+				{
+					"category": "function",
+					"resourceName": "examinerportfolio5321e3b5PostConfirmation",
+					"triggerProvider": "Cognito",
+					"attributes": [
+						"Arn",
+						"Name"
+					]
+				}
+			]
 		}
 	}
 }
