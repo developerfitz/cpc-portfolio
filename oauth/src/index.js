@@ -10,5 +10,12 @@ import config from './aws-exports'
 
 Amplify.configure(config)
 
-const mountNode = document.getElementById("app");
-ReactDOM.render(<App />, mountNode);
+// TODO: setup routes for a few pages
+// SignIn Page
+// User profile Page with access to app for excel upload
+// SignOut Page after logging out
+
+ReactDOM.render(
+    <App />,
+    document.getElementById('app')
+)
