@@ -1,0 +1,27 @@
+{
+    "dev": {
+        "awscloudformation": {
+            "AuthRoleName": "amplify-examinerportfolio-dev-232637-authRole",
+            "UnauthRoleArn": "arn:aws:iam::862347804731:role/amplify-examinerportfolio-dev-232637-unauthRole",
+            "AuthRoleArn": "arn:aws:iam::862347804731:role/amplify-examinerportfolio-dev-232637-authRole",
+            "Region": "us-east-1",
+            "DeploymentBucketName": "amplify-examinerportfolio-dev-232637-deployment",
+            "UnauthRoleName": "amplify-examinerportfolio-dev-232637-unauthRole",
+            "StackName": "amplify-examinerportfolio-dev-232637",
+            "StackId": "arn:aws:cloudformation:us-east-1:862347804731:stack/amplify-examinerportfolio-dev-232637/eccbde80-fede-11ea-aa9b-124aa02dc2ed",
+            "AmplifyAppId": "d2frgfukwsd205"
+        },
+        "categories": {
+            "function": {
+                "examinerportfolio5321e3b5PostConfirmation": {
+                    "GROUP": "examinerusers"
+                }
+            },
+            "auth": {
+                "examinerportfolio5321e3b5": {
+                    "hostedUIProviderCreds": "[{\"ProviderName\":\"Google\",\"client_id\":\"822446603236-s0sr2iqhglfd8k3kv59d1pl7h182trd6.apps.googleusercontent.com\",\"client_secret\":\"tSKXBSW2y0klAEyApo--GgqB\"}]"
+                }
+            }
+        }
+    }
+}
