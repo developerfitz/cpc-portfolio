@@ -12,8 +12,9 @@ As an Examiner, I want a cohesive area with relevant data to efficiently evaluat
 **Story**  
 As an Examiner, I want to see the titles of the CPC symbols to decide if a CPC symbol should be added, removed, or kept in my portfolio.
 
+------- 
 
-I built a functional prototype as a proof of concept, which could then be improved upon with feedback from other Examiners.
+This project is a functional prototype as a proof of concept, which could then be improved upon with feedback from other Examiners.
 
 
 ### Tech. Stack
