@@ -33,8 +33,8 @@ def excel_processor(event, context):
     filename = body['filename']
     logger.info(filename)
     
-    s3.download_file(BUCKET, f'{PRE}/{filename}', f'/tmp/{filename}')
-
+    # s3.download_file(BUCKET, f'{PRE}/{filename}', f'/tmp/{filename}')
+    # BUCKET/private/${cognito-id}/PRE/filename 
     # ??: write file 
     wb = load_workbook(filename=f'/tmp/{filename}', read_only=True)
 

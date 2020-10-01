@@ -57,7 +57,6 @@
         "Google"
     ],
     "hostedUIProviderMeta": "[{\"ProviderName\":\"Google\",\"authorize_scopes\":\"openid email profile\",\"AttributeMapping\":{\"email\":\"email\",\"name\":\"name\",\"username\":\"sub\"}}]",
-    "oAuthMetadata": "{\"AllowedOAuthFlows\":[\"code\"],\"AllowedOAuthScopes\":[\"phone\",\"email\",\"openid\",\"profile\",\"aws.cognito.signin.user.admin\"],\"CallbackURLs\":[\"http://localhost:3005/\",\"http://localhost:3005/signed-out/\"],\"LogoutURLs\":[\"htto://loccalhost:3005/signed-out/\"]}",
     "userPoolGroupList": [],
     "parentStack": {
         "Ref": "AWS::StackId"
@@ -75,5 +74,6 @@
                 "Name"
             ]
         }
-    ]
+    ],
+    "oAuthMetadata": "{\"AllowedOAuthFlows\":[\"code\"],\"AllowedOAuthScopes\":[\"phone\",\"email\",\"openid\",\"profile\",\"aws.cognito.signin.user.admin\"],\"CallbackURLs\":[\"http://localhost:3005/\",\"http://localhost:3005/signed-out/\",\"http://localhost:3005/examiner/\"],\"LogoutURLs\":[\"http://localhost:3005/signed-out/\",\"http://localhost:3005/\"]}"
 }

@@ -9,6 +9,24 @@ import Amplify from 'aws-amplify'
 import config from './aws-exports'
 
 Amplify.configure(config)
+// Amplify.configure({
+//     Auth: {
+//         identityPoolId: "us-east-1:f7ad6ad9-9d49-4efb-b0ed-87b2cf817304",
+//         region: 'us-east-1',
+//         userPoolId: "us-east-1_MuFrMGcxi",
+//         userPoolWebClientId: "4krgehlbq3hdtm3ts7lnlrje8v",
+//     },
+//     Storage: {
+//         AWSS3: {
+//             bucket: 'cpc-portfolios',
+//             region: 'us-east-1'
+//         },
+//         customPrefix: {
+//             private: 'post-processed/',
+//             private: 'pre-processed/'
+//         }
+//     }
+// })
 
 // TODO: setup routes for a few pages
 // SignIn Page
