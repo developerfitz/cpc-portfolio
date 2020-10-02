@@ -3,6 +3,21 @@ import ReactDOM from "react-dom";
 import App from "./App";
 import "./styles.css";
 // import "./styles.styl";
+import regeneratorRuntime from 'regenerator-runtime'
+// was another options relating to the regenerator error
+// https://stephencharlesweiss.com/regenerator-runtime-not-defined/
+// https://github.com/parcel-bundler/parcel/issues/1762
+// https://www.npmjs.com/package/regenerator-runtime
+//  "plugins": [
+//     [
+//       "@babel/plugin-transform-runtime",
+//       {
+//         "corejs": 2,
+//         "regenerator": true
+//       }
+//     ]
+//   ]
+
 
 
 import Amplify from 'aws-amplify'

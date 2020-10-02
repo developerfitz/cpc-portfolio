@@ -31,10 +31,16 @@ def excel_processor(event, context):
     body = json.loads(event['body'])
     # logger.info(body)
     filename = body['filename']
+    cognito_id = body['cognitoId']
     logger.info(filename)
-    
+    logger.info(cognito_id)
+    logger.info(f'{BUCKET}/private/{cognito_id}/{PRE}/{filename}')
     # s3.download_file(BUCKET, f'{PRE}/{filename}', f'/tmp/{filename}')
-    # BUCKET/private/${cognito-id}/PRE/filename 
+    s3.download_file(
+        BUCKET,
+        f'private/{cognito_id}/{PRE}/{filename}',
+        f'/tmp/{filename}')
+    # BUCKET/private/cognito_id/PRE/filename 
     # ??: write file 
     wb = load_workbook(filename=f'/tmp/{filename}', read_only=True)
 
@@ -151,9 +157,11 @@ def excel_processor(event, context):
 
     # save and upload processed excel wb
     processed_filename = f'processed-{filename}'
-    key_after_processing = f'{POST}/{processed_filename}'
+    # key_after_processing = f'{POST}/{processed_filename}'
+    key_after_processing = f'private/{cognito_id}/{POST}/{processed_filename}'
     tmp_file_location = f'/tmp/{processed_filename}'
     logger.info(processed_filename)
+    logger.info(key_after_processing)
     new_wb.save(tmp_file_location)
 
     s3.upload_file(
@@ -162,30 +170,31 @@ def excel_processor(event, context):
         key_after_processing
         )
 
-    s3_params = {
-        'Bucket': BUCKET,
-        'Key': key_after_processing,
-    }
+    # s3_params = {
+    #     'Bucket': BUCKET,
+    #     'Key': key_after_processing,
+    # }
 
-    logger.info(s3_params)
-    url = s3.generate_presigned_url(
-        'get_object',
-        Params=s3_params,
-        HttpMethod='GET',
-        ExpiresIn=60
-    )
+    # logger.info(s3_params)
+    # url = s3.generate_presigned_url(
+    #     'get_object',
+    #     Params=s3_params,
+    #     HttpMethod='GET',
+    #     ExpiresIn=60
+    # )
 
     payload = {
-        'message': 'Hope this helps you organize your portfolio',
+        'message': 'File processed. Hope this helps you organize your portfolio',
         'bucket': BUCKET,
-        'filename': filename,
-        'presignedUrl': url,
+        'uploadedFilename': filename,
+        'processedFilename': processed_filename
+        # 'presignedUrl': url,
     }
     logger.info(payload)
 
     return {
         'headers': {
-            'Access-Control-Allow-Origin': 'http://localhost:8888',
+            'Access-Control-Allow-Origin': 'http://localhost:3005',
         },
         'statusCode': 200,
         'body': json.dumps(payload),
