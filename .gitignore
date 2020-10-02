@@ -25,6 +25,7 @@ cpc-examiner-portfolio.xlsx
 .vscode/
 __pycache__/
 test_CPC*
+notes.txt
 
 # lambda backend
 lambda-zappa/

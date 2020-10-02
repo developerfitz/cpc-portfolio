@@ -16,11 +16,12 @@ As an Examiner, I want to see the titles of the CPC symbols to decide if a CPC s
 
 This project is a functional prototype as a proof of concept, which could then be improved upon with feedback from other Examiners.
 
+![cpc portfolio demo](demos/demo-gif)
 
 ### Tech. Stack
 **Frontend** 
 - JavaScript + HTML / CSS 
-- Amplify SDK (Cognito + OAuth)
+- Amplify SDK (Cognito, OAuth, S3)
 - React + React router
 - Netlify (Hosting)
 
@@ -30,30 +31,12 @@ This project is a functional prototype as a proof of concept, which could then b
   - Lambda (Compute)
   - S3 (Storage)
   - Boto3 SDK
-    - pre-signed urls
   - API Gateway (Routing) 
   - X-Ray (Monitoring)
   - Cloud Watch (Logging) 
 - Openpyxl (Excel Library)
 
 
-
-## Plans For Redesign (architect)
-While the prototype works, the architecture can be improved, along with other things.
-
-- Utilize SDK on the client-side to interact with S3 and Lambda to avoid the use of a pre-signed url
-- Use caching to improve performance and for Script and calls to the [Patentview API](https://api.patentsview.org/cpc_subsection.html).
-- CloudFront for distribution to edge
-- SNS or web socket to allow communication when processing is complete and read for download.
-- use a generator to get data from patents APIs
-
-
-### Tech. Stack Additions
-- AWS
-  - Amplify SDK (S3, Lambda)
-  - API Gateway (https or web socket)
-  - CloudFront + Caching
-  - SNS or Web socket
 
 
 ### Lessons Learned
