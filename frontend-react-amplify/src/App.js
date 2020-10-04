@@ -1,8 +1,11 @@
+import Amplify, { Auth, Hub, Storage } from 'aws-amplify'
+import { Box, Button, Heading, Flex, Input, InputGroup, InputRightAddon, Text, useTheme } from '@chakra-ui/core'
 import React, { useEffect, useState, useRef } from 'react'
 import { BrowserRouter as Router, Switch, Route, Link, Redirect, useHistory, useLocation } from "react-router-dom"
-import Amplify, { Auth, Hub, Storage } from 'aws-amplify'
 
-// import Login from 'login' // Home page need to sign in
+import Footer from '../components/Footer'
+import Header from '../components/Header'
+// import Home from 'Home' // Home page need to sign in
 // import Logout from 'logout' 
 // import PrivateRoute from 'privateRoute' 
 // import Profile from 'profile' // protected require login
@@ -14,28 +17,65 @@ const PROCESS_PORTFOLIO = `${BASE_URL}/get-processed-excel-sheet`
 
 
 
-function Login(props) {
-  const { login } = props
-
+function Home(props) {
+  const { user, isAuthorized } = props
   return(
-    <div>
-      <h1>Examiner's Supplemental Tools</h1>
-      <h2>The functionality we wanted, but they did not provide...</h2>
-      <h3>Please Sign Up or Login to gain access to the functionality they did not provide.</h3>
-      <button onClick={() => Auth.federatedSignIn()}>Sign In</button>
-    </div>
+    <Box>
+      <Header user={user}/>
+      <Flex m={3}
+        // w='75%'
+        direction='column'
+        justify='center'
+        align='center'
+      >
+        <Text w='50%' fontSize='lg'>
+          A toolbox built by an Examiner for Examiners. We all know how important our examining time is, so this toolbox will reduce the time spent evaluating your portfolio and allow you to focus on examining.
+        </Text>
+        { user 
+          ? (<Link to='/examiner' replace>
+              <Button variantColor='teal' m={4}>Toolbox</Button>
+             </Link>)
+          : (<>
+              <Text mt={6} w='50%'>
+                Login or sign up to start using the Portfolio Toolbox and focus on Examining! 😎 
+              </Text>
+              <Button 
+                variantColor={'teal'}
+                m={2}
+                onClick={() => Auth.federatedSignIn()}
+              >
+                Sign Up/In
+              </Button>
+            </>
+          )
+        }
+      </Flex>
+      <Footer />
+    </Box>
   )
 }
 
 function Logout() {
 
   return (
-    <div>
+    <Box>
+      <Header />
+      <Box m='10px'>
       <h1>You have Logged Out.</h1>
-      <button onClick={() => Auth.federatedSignIn()}>Sign Back In</button>
+      {/* <button onClick={() => Auth.federatedSignIn()}>Sign Back In</button> */}
       {/* FIX: redirect after logout does not seem to work */}
-      <button onClick={() => <Redirect to='/' />} >Home Page</button>
-    </div>
+        <Link to='/'>
+          <Button 
+            variantColor='teal'
+            mt='5px' 
+            // onClick={() => <Redirect to='/' />} 
+          >
+            Home Page
+          </Button>
+        </Link>
+      </Box>
+      <Footer />
+    </Box >
   )
 }
 
@@ -43,16 +83,38 @@ function Logout() {
 function Profile(props) {
   const { user, id } = props
   const [file, setFile] = useState({raw: ''})
-  const uploadFile = document.getElementById('#upload_input')
+  const uploadFile = document.getElementById('upload_input')
+  // useEffect( () => {
+  // }, [])
+  let label = document.getElementById('input_label')
+  // label
+  const labelRef = useRef()
   const responseDiv = document.getElementById('#response')
   const uploadButton = useRef()
   const fileInput = useRef()
 
+  // const theme = useTheme()
+
   const handleChange = e => {
-    if(e.target.files) {
+    if (e.target.files) {
       setFile({raw: e.target.files})
+      // input.addEventListener('change', function (e) {
+      // let fileName = ''
+      const fileName = e.target.files[0].name
+      console.log(fileName)
+      console.log(e.target.files[0])
+      // ! FIX: upload does not work when navigate to home then back to toolbox. needs to be fixed
+      label.innerHTML = fileName
+      // })
     }
   }
+
+  const handleClick = e => {
+    if (e.target) {
+      console.log(e.target)
+    }
+  }
+
   const uploadFileButton = async e => {
     e.preventDefault()
     // ! assuming only one file uploaded
@@ -95,21 +157,48 @@ function Profile(props) {
       .then( res => window.open(res, '_blank'))
       .catch( err => console.log(err))
 
-    responseDiv.innerText = `Thank you for using Examiner's Supplement Tools`
+    responseDiv.innerText = `Thank you for using the Portfolio Toolbox!`
   }
 
 
   return(
-    <div>
-      <h1>Welcome Examiner {user ? user.attributes.name : ''}</h1>
-        <button onClick={() => Auth.signOut()}>Sign Out</button>
-      <main>
-        <h2>Supplemental Portfolio Tool</h2>
-          <input ref={fileInput} onChange={handleChange} id='#upload_input' type='file' name='file' accept='.xls, .xlsx, application/vnd.ms-excel, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' />
-          <button ref={uploadButton} onClick={uploadFileButton} id='#upload_button'>Upload</button>
-          <h3 id='#response'></h3>
-      </main>
-    </div>
+    <Flex direction='column'>
+      <Header user={user} />
+      {/* <h1>Welcome Examiner {user ? user.attributes.name : ''}</h1>
+      <button onClick={() => Auth.signOut()}>Sign Out</button> */}
+      <Box m={'1rem'} className='main'>
+        <Heading as='h2' size='md'>Populate CPC Titles</Heading>
+        <Text>Upload an excel file of your portfolio and generate a new file with CPC titles populated.</Text>
+        <Flex
+          w='50%'
+        >
+        {/* https://tympanus.net/codrops/2015/09/15/styling-customizing-file-inputs-smart-way/ */}
+            <input 
+              ref={fileInput} 
+              onChange={handleChange} 
+              // placeholder='Upload File'
+              id='upload_input'  
+              type='file' 
+              name='file' 
+              accept='.xls, .xlsx, application/vnd.ms-excel, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' 
+            />
+            <label 
+              ref={labelRef} id='input_label' 
+              htmlFor='upload_input'
+            >
+              Choose File...
+            </label>
+            <Button
+              variantColor='teal' 
+              mt={2} variant='solid'  ml='1rem'
+              ref={uploadButton} onClick={uploadFileButton} id='#upload_button'
+            >Upload</Button>
+            {/* <Input onClick={handleClick} placeholder='Upload' /> */}
+        </Flex>     
+        <h3 id='#response'></h3>
+      </Box>
+      <Footer />
+    </Flex>
   )
 }
 
@@ -174,7 +263,7 @@ function App() {
     <Router>      
       <Switch>
         <Route exact path='/'>
-          <Login user={user} isAuthorized/>
+          <Home user={user} isAuthorized/>
         </Route>
         <PrivateRoute exact isAuthorized path='/examiner' component={Profile} user={user} id={id}/>
         <Route exact path='/signed-out' >
