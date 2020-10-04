@@ -23,38 +23,34 @@ POST = os.environ['POST']
 
 
 def excel_processor(event, context):
-    # TODO: need some error handling in here
-    # download excel sheet to work on
+    # TODO: need to handle exceptions 
     logger.info(BUCKET)
-    # TODO: should add the filename from the event object
-    # logger.info(event)
     body = json.loads(event['body'])
-    # logger.info(body)
     filename = body['filename']
     cognito_id = body['cognitoId']
-    logger.info(filename)
-    logger.info(cognito_id)
     logger.info(f'{BUCKET}/private/{cognito_id}/{PRE}/{filename}')
 
     s3.download_file(
         BUCKET,
         f'private/{cognito_id}/{PRE}/{filename}',
         f'/tmp/{filename}')
-    # ??: write file 
+
     wb = load_workbook(filename=f'/tmp/{filename}', read_only=True)
 
     # TODO: take in the name of the sheet that is in the file
     sheet = wb["Symbols Sorted"]
-    examiner = Examiner(first_name="dark", last_name='examiner')
+    examiner = Examiner(first_name="Test", last_name='Examiner')
     portfolio_list = []
-    # portfolio_data = sheet["B1:H673"]
 
-    # first row labels of ws
+    # labels of the data; first row
     SYMBOL = 0
     C_STAR = 3
     TALLY = 4
     QUALIFIED = 6
-    ROWS_END = 673
+    ROWS_END = sheet.max_row
+    logger.info(ROWS_END)
+    # ENDING = len(sheet['B'])
+    # logger.info(ENDING)
 
     for row in sheet.iter_rows(
         min_row=2,
@@ -84,10 +80,10 @@ def excel_processor(event, context):
     logger.info(examiner.symbols_list_only[0:5])
 
 
-    # # TODO: possibly turn this into a stream, so the limit does not matter
+    # TODO: possibly turn this into a stream, so the limit does not matter
     PATENTVIEW = 'https://api.patentsview.org/cpc_subsections/query'
     payload = {
-      "q": {"cpc_subgroup_id": examiner.symbols_list_only[0:5]},
+      "q": {"cpc_subgroup_id": examiner.symbols_list_only[0:ROWS_END]},
       "f": ["cpc_subgroup_id", "cpc_subgroup_title"],
       "s": [{"cpc_subgroup_id": "asc"}],
       "o": {"matched_subentities_only": 'true'}
@@ -97,7 +93,6 @@ def excel_processor(event, context):
     if req.status_code != 200:
         logger.info(req.headers['x-status-reason'])
         logger.info(req.raise_for_status())
-        # return(req.raise_for_status())   
 
     for subsection in req.json()['cpc_subsections']:
         for subgroup in subsection['cpc_subgroups']:
@@ -132,7 +127,8 @@ def excel_processor(event, context):
       "align-center": Alignment(horizontal='center', vertical='center', wrap_text=True),
       "font": Font(size=16)
     }
-    # TODO: add column_dimensions to adjust the width of a column
+
+    # Styling the new worksheet
     ws.column_dimensions['A'].width = 22
     ws.column_dimensions['B'].width = 150
     ws.column_dimensions['C'].width = 8
