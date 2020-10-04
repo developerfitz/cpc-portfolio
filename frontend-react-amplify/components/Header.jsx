@@ -1,6 +1,5 @@
 import React from 'react'
-import { Auth } from 'aws-amplify'
-import { Flex, Heading, Box, Button, Text } from "@chakra-ui/core"
+import { Flex, Heading, Box } from "@chakra-ui/core"
 import { Link } from 'react-router-dom'
 import { SignInButton, SignOutButton } from './authButtons'
 
@@ -48,20 +47,6 @@ const Header = props => {
                 )
               : <SignInButton />
             }
-            {/* { user ? <SignOutButton /> : <SignInButton /> } */}
-            {/* <SignInButton /> */}
-            {/* <SignOutButton /> */}
-            {/* <Button 
-              bg='transparent'
-              variantColor='teal'
-              // variant='outline'
-              border='1px' 
-              size='xs' 
-              spacing={2}
-              onClick={() => Auth.signOut()}
-            >
-              SignOut
-            </Button> */}
           </Flex>
         </Box>
       </Flex>

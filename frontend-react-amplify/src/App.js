@@ -1,20 +1,16 @@
 import Amplify, { Auth, Hub, Storage } from 'aws-amplify'
-import { Box, Button, Heading, Flex, Input, InputGroup, InputRightAddon, Text, useTheme } from '@chakra-ui/core'
 import React, { useEffect, useState, useRef } from 'react'
-import { BrowserRouter as Router, Switch, Route, Link, Redirect, useHistory, useLocation } from "react-router-dom"
+import { BrowserRouter as Router, Switch, 
+  Route, Link, Redirect } from "react-router-dom"
+import { Box, Button, Heading, Flex, Text, useTheme } from '@chakra-ui/core'
 
 import Footer from '../components/Footer'
 import Header from '../components/Header'
-// import Home from 'Home' // Home page need to sign in
-// import Logout from 'logout' 
-// import PrivateRoute from 'privateRoute' 
-// import Profile from 'profile' // protected require login
 
 // Lambda Urls
 const BASE_URL = 'https://7tmyw05dri.execute-api.us-east-1.amazonaws.com/dev'
 const UPLOAD_PORTFOLIO = `${BASE_URL}/examiner-portfolio`
 const PROCESS_PORTFOLIO = `${BASE_URL}/get-processed-excel-sheet`
-
 
 
 function Home(props) {
@@ -23,7 +19,6 @@ function Home(props) {
     <Box>
       <Header user={user}/>
       <Flex m={3}
-        // w='75%'
         direction='column'
         justify='center'
         align='center'
@@ -44,7 +39,7 @@ function Home(props) {
                 m={2}
                 onClick={() => Auth.federatedSignIn()}
               >
-                Sign Up/In
+                Login or Sign Up
               </Button>
             </>
           )
@@ -61,14 +56,11 @@ function Logout() {
     <Box>
       <Header />
       <Box m='10px'>
-      <h1>You have Logged Out.</h1>
-      {/* <button onClick={() => Auth.federatedSignIn()}>Sign Back In</button> */}
-      {/* FIX: redirect after logout does not seem to work */}
+      <Text fontSize='lg' m={4}>You have Logged Out.</Text>
         <Link to='/'>
           <Button 
             variantColor='teal'
             mt='5px' 
-            // onClick={() => <Redirect to='/' />} 
           >
             Home Page
           </Button>
@@ -84,28 +76,20 @@ function Profile(props) {
   const { user, id } = props
   const [file, setFile] = useState({raw: ''})
   const uploadFile = document.getElementById('upload_input')
-  // useEffect( () => {
-  // }, [])
   let label = document.getElementById('input_label')
-  // label
-  const labelRef = useRef()
+  const labelRef = useRef() // probably not needed
   const responseDiv = document.getElementById('#response')
   const uploadButton = useRef()
   const fileInput = useRef()
-
   // const theme = useTheme()
 
   const handleChange = e => {
     if (e.target.files) {
       setFile({raw: e.target.files})
-      // input.addEventListener('change', function (e) {
-      // let fileName = ''
       const fileName = e.target.files[0].name
       console.log(fileName)
-      console.log(e.target.files[0])
       // ! FIX: upload does not work when navigate to home then back to toolbox. needs to be fixed
       label.innerHTML = fileName
-      // })
     }
   }
 
@@ -164,38 +148,37 @@ function Profile(props) {
   return(
     <Flex direction='column'>
       <Header user={user} />
-      {/* <h1>Welcome Examiner {user ? user.attributes.name : ''}</h1>
-      <button onClick={() => Auth.signOut()}>Sign Out</button> */}
       <Box m={'1rem'} className='main'>
         <Heading as='h2' size='md'>Populate CPC Titles</Heading>
-        <Text>Upload an excel file of your portfolio and generate a new file with CPC titles populated.</Text>
+        <Text>
+          Upload an excel file of your portfolio and generate a new file with CPC titles populated.
+        </Text>
         <Flex
           w='50%'
         >
-        {/* https://tympanus.net/codrops/2015/09/15/styling-customizing-file-inputs-smart-way/ */}
-            <input 
-              ref={fileInput} 
-              onChange={handleChange} 
-              // placeholder='Upload File'
-              id='upload_input'  
-              type='file' 
-              name='file' 
-              accept='.xls, .xlsx, application/vnd.ms-excel, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' 
-            />
-            <label 
-              ref={labelRef} id='input_label' 
-              htmlFor='upload_input'
-            >
-              Choose File...
-            </label>
-            <Button
-              variantColor='teal' 
-              mt={2} variant='solid'  ml='1rem'
-              ref={uploadButton} onClick={uploadFileButton} id='#upload_button'
-            >Upload</Button>
-            {/* <Input onClick={handleClick} placeholder='Upload' /> */}
+          <input 
+            ref={fileInput} 
+            onChange={handleChange} 
+            id='upload_input'  
+            type='file' 
+            name='file' 
+            accept='.xls, .xlsx, application/vnd.ms-excel, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' 
+          />
+          <label 
+            ref={labelRef} id='input_label' 
+            htmlFor='upload_input'
+          >
+            Choose File...
+          </label>
+          <Button
+            variantColor='teal' 
+            mt={2} variant='solid'  ml='1rem'
+            ref={uploadButton} onClick={uploadFileButton} id='#upload_button'
+          >
+            Upload
+          </Button>
         </Flex>     
-        <h3 id='#response'></h3>
+        <Text fontSize={'lg'} mt={6}id='#response'></Text>
       </Box>
       <Footer />
     </Flex>
@@ -257,8 +240,7 @@ function App() {
       })
       .catch(() => console.log('Not signed in'))
   }
-  // * possible to use JWT for login 
-  // const { jwtToken, payload } = user.signInUserSession.idToken
+
   return (
     <Router>      
       <Switch>
