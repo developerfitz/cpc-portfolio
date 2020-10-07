@@ -29,8 +29,10 @@ notes.txt
 
 # lambda backend
 lambda-zappa/
-processor.zip
+# processor.zip
+excel-proc/
 upload-portfolio.zip
+backend/
 .env
 
 # virtual env
