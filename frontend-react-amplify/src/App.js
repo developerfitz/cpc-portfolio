@@ -9,7 +9,6 @@ import Header from '../components/Header'
 
 // Lambda Urls
 const BASE_URL = 'https://7tmyw05dri.execute-api.us-east-1.amazonaws.com/dev'
-const UPLOAD_PORTFOLIO = `${BASE_URL}/examiner-portfolio`
 const PROCESS_PORTFOLIO = `${BASE_URL}/get-processed-excel-sheet`
 
 
