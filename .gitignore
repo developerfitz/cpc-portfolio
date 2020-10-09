@@ -31,6 +31,7 @@ notes.txt
 lambda-zappa/
 # processor.zip
 excel-proc/
+func-examiner-portfolio/
 upload-portfolio.zip
 backend/
 .env
@@ -38,7 +39,7 @@ backend/
 # virtual env
 excel-proc/
 
-# frontend
+# frontendcd
 .netlify/
 
 
