@@ -8,8 +8,8 @@ import Footer from '../components/Footer'
 import Header from '../components/Header'
 
 // Lambda Urls
-const BASE_URL = 'https://7tmyw05dri.execute-api.us-east-1.amazonaws.com/dev'
-const PROCESS_PORTFOLIO = `${BASE_URL}/get-processed-excel-sheet`
+const BASE_URL = 'https://<random-name>.execute-api.us-east-1.amazonaws.com/dev'
+const PROCESS_PORTFOLIO = `${BASE_URL}/processor`
 
 
 function Home(props) {

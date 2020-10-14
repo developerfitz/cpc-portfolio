@@ -7,8 +7,6 @@ const Header = props => {
   const { user } = props
   const [show, setShow] = React.useState(false)
   const handleToggle = () => setShow(!show)
-  const buttonAction = 
-  console.log(user)
 
   return (
     <Box>
