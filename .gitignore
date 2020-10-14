@@ -36,8 +36,6 @@ upload-portfolio.zip
 backend/
 .env
 
-# virtual env
-excel-proc/
 
 # frontendcd
 .netlify/
